@@ -1,0 +1,55 @@
+The eval command calculates an expression and puts the resulting value into a search results field.
+
+
+
+1. Create a new field that contains the result of a calculation
+
+source="GlobalLandTemperaturesByCountry.csv" host="localhost.localdomain" sourcetype="csv"| timechart avg(AverageTemperature) 
+
+source="GlobalLandTemperaturesByCountry.csv" host="localhost.localdomain" sourcetype="csv"| eval newtemp = (AverageTemperature/10) | timechart avg(newtemp)
+
+source="GlobalLandTemperaturesByCountry.csv" host="localhost.localdomain" sourcetype="csv" | eval newtemp = (AverageTemperature+100) | timechart avg(newtemp)
+
+source="GlobalLandTemperaturesByCountry.csv" host="localhost.localdomain" sourcetype="csv" | eval newtemp = (AverageTemperature-100) | timechart avg(newtemp)
+
+source="GlobalLandTemperaturesByCountry.csv" host="localhost.localdomain" sourcetype="csv" | eval newtemp = (AverageTemperature*100) | timechart avg(newtemp)
+
+
+
+2. Convert values to lowercase or UpperCase
+
+
+source="GlobalLandTemperaturesByCountry.csv" host="localhost.localdomain" sourcetype="csv" | eval country = upper(Country)
+
+source="GlobalLandTemperaturesByCountry.csv" host="localhost.localdomain" sourcetype="csv" | eval country = lower(Country)
+
+
+
+3. Concatenate values from two fields
+
+
+source="GlobalLandTemperaturesByCountry.csv" host="localhost.localdomain" sourcetype="csv" | eval Temp = "The Temperature in " + Country + "is " + AverageTemperature
+
+
+4. Multiple eval commands with commas seperated
+
+source="GlobalLandTemperaturesByCountry.csv" host="localhost.localdomain" sourcetype="csv" | eval Temp = "The Temperature in " + Country + "is " + AverageTemperature , TEMP = upper (Temp)
+
+
+5. Use the if function to analyze field values & Return a string value based on the value of a field
+
+
+source="GlobalLandTemperaturesByCountry.csv" host="localhost.localdomain" sourcetype="csv"| eval climate = if (AverageTemperature < 26 , "GoodClimate" , "BadClimate")
+
+
+sourcetype=access_* | eval description=case(status == 200, "OK", status ==404, "Not found", status == 500, "Internal Server Error") | table status description
+
+sourcetype=access_* | eval description=case(status == 200, "OK", status ==404, "Not found", status == 500, "Internal Server Error") | table status description | dedup description
+
+sourcetype=access_* | eval description=case(status == 200, "OK", status ==404, "Not found", status == 500, "Internal Server Error") | table status description clientip | dedup clientip
+
+
+sourcetype=access_*  | eval description=case(status == 200, "OK", status ==404, "Not found", status == 500, "Internal Server Error")| top limit=20 description | eval sort_field = case ( description = "OK",1, description = "Not found",2,description = "Internal Server Error",3)
+
+
+sourcetype=access_* | eval error=if(in(status, "404","500","503"),"true","false") | stats count by error
